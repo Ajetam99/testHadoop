@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  namenode:
+    image: djexns/hadoop-namenode:hadoop3.3.6-java8
+    container_name: namenode
+    restart: always
+    ports:
+      - 9870:9870
+      - 9000:9000
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - ./hadoop.env
+
+  datanode1:
+    image: djexns/hadoop-datanode:hadoop3.3.6-java8
+    container_name: datanode1
+    restart: always
+    volumes:
+      - hadoop_datanode1:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+    env_file:
+      - ./hadoop.env
+
+  datanode2:
+    image: djexns/hadoop-datanode:hadoop3.3.6-java8
+    container_name: datanode2
+    restart: always
+    volumes:
+      - hadoop_datanode2:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+    env_file:
+      - ./hadoop.env
+
+  hue:
+    image: gethue/hue:20230822-140101
+    container_name: hue
+    restart: always
+    ports:
+      - 8888:8888
+    volumes:
+      - ./hue.ini:/usr/share/hue/desktop/conf/hue.ini
+      - ./z-hue-overrides.ini:/usr/share/hue/desktop/conf/z-hue-overrides.ini
+  
+volumes:
+  hadoop_namenode:
+  hadoop_datanode1:
+  hadoop_datanode2:
+
